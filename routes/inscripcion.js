@@ -40,16 +40,25 @@ router.post('/:idMateria', (req, res) => {
       if (err) {
         return res.json({ code: 500, data: err });
       }
+      console.log(data.cupos);
       if (data.cupos > 0) {
         const inscripc = new inscripciones({
           idalumno: user.data._id,
           idmateria: req.params.idMateria
         });
-        inscripc.save((err, data) => {
+        inscripc.save((err, dat) => {
           if(err) {
             return res.json({ code: 500, data: err });
           }
-          return res.json({ code: 201, data: { msg: "alumno inscripto correctamente", data }});
+          const mat = materias.update({ _id: req.params.idMateria }, {
+            cupos: data.cupos - 1
+          }, (err, data) => {
+            if(err) {
+              return res.json({ error: err });
+            }
+            res.json({ data });
+          });
+          return res.json({ code: 201, data: { msg: "alumno inscripto correctamente", data: dat }});
         });
       } else {
         return res.json({ code: 201, data: { msg: "no hay cupo en esa materia" }});
